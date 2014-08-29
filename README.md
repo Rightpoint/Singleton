@@ -23,20 +23,14 @@ We want to use a Singleton. It should be easy, statically referenced, and **only
 
 #### Retrieval
 
-There are a few ways in this library to retrieve a singleton, but this is the suggested way.
 
 ```java
 
 public void someMethod() {
   
   // Retrieves the singleton instance into a local variable!
-  MyClass myObject = new Singleton(MyClass.class).retrieve();
+  MyClass myObject = new Singleton(MyClass.class).getInstance();
 
-  // Statically get the object
-  MyClass myObject = SingletonManager.retrieve(MyClass.class);
-
-  // Statically get the object nonstatically
-  MyClass myObject = SingletonManager.getInstance().singleton(MyClass.class);
 }
 
 ```
@@ -45,12 +39,24 @@ public void someMethod() {
 
 ```java
 
-  myObject.remove();
+  // Deletes from persistent storage
+  mySingleton.delete();
 
-  // or
-  SingletonManager.remove(MyClass.class);
+  // Removes the grasp on the contained reference and sets it to null. 
+  // Good for freeing up persistent data
+  mySingleton.release();
 
-  // or
-  SingletonManager.getInstance().destroySingleton(MyClass.class);
+  // Deletes, releases, and removes itself from the SingletonManager
+  mySingleton.remove();
+
+
+```
+
+#### More
+
+```java
+  
+   // Saves the object to persistent storage
+   mySingleton.save();
 
 ```
