@@ -114,20 +114,6 @@ class SingletonManager {
     }
 
     /**
-     * Removes the singleton from the map and returns it for any other residual cleanup.
-     *
-     * @param typeClass       The class of the singleton we want to destroy
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public <DataClass> SingletonInfo<DataClass> destroySingleton(Class<DataClass> typeClass) {
-        SingletonInfo<DataClass> singletonInfo = mSingletonMap.remove(typeClass);
-        removePersistence(singletonInfo);
-        return singletonInfo;
-    }
-
-
-    /**
      * It will delete the singleton file on disk
      * @param singletonInfo
      * @param <DataClass>

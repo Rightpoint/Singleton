@@ -110,7 +110,16 @@ class SingletonInfo<DataClass> {
     }
 
     /**
-     * Releases the reference to the singleton in the {@link com.raizlabs.android.singleton.SingletonManager}
+     * Removes the object from the {@link com.raizlabs.android.singleton.SingletonManager},
+     * deletes it from persistent storage, and releases its reference.
+     */
+    public void remove() {
+        delete();
+        SingletonManager.getInstance().mSingletonMap.remove(mDataClass);
+    }
+
+    /**
+     * Releases the reference to the singleton object in the {@link com.raizlabs.android.singleton.SingletonManager}
      */
     public void release() {
         mInstance = null;
@@ -123,6 +132,7 @@ class SingletonInfo<DataClass> {
      */
     public DataClass delete() {
         DataClass instance = mInstance;
+        release();
         SingletonManager.getInstance().removePersistence(this);
         return instance;
     }
