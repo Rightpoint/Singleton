@@ -14,6 +14,28 @@ import java.lang.reflect.ParameterizedType;
 public class Singleton<DataClass> {
 
     /**
+     * Makes the specified object a Singleton
+     * @param instance
+     * @param persists
+     * @param <DataClass>
+     * @return
+     */
+    public static <DataClass> Singleton<DataClass> makeSingleton(DataClass instance, boolean persists) {
+        Singleton<DataClass> singleton = new Singleton<DataClass>(instance, persists);
+        if(persists) {
+            if(instance instanceof Serializable) {
+                PersistentSingletonManager.getInstance().makeSingleton((Serializable) instance);
+            } else {
+                throw new RuntimeException("Singleton must implement java.io.Serializable for it to persist");
+            }
+        } else {
+            SingletonManager.getInstance().makeSingleton(instance);
+        }
+        return singleton;
+    }
+
+
+    /**
      * The class we will use to retrieve an instance from the {@link com.raizlabs.android.singleton.SingletonManager}
      */
     private Class<DataClass> mDataClass;
@@ -31,12 +53,20 @@ public class Singleton<DataClass> {
 
     /**
      * Constructs an empty instance of the singleton. It does not retrieve an instance from the
-     * {@link com.raizlabs.android.singleton.SingletonManager} until you call {@link #singleton()}
+     * {@link com.raizlabs.android.singleton.SingletonManager} until you call {@link #retrieve()}
      * @param dataClass The class we will use to retrieve an instance from
      *                  the {@link com.raizlabs.android.singleton.SingletonManager}
      */
     public Singleton(Class<DataClass> dataClass) {
         mDataClass = dataClass;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    Singleton(DataClass instance, boolean persists) {
+        this.persists = persists;
+        mInstance = instance;
+        mDataClass = (Class<DataClass>) instance.getClass();
     }
 
     /**

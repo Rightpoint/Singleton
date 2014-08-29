@@ -7,6 +7,7 @@ import com.raizlabs.android.core.AppContext;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * Author: andrewgrosner
@@ -52,6 +53,13 @@ public class PersistentSingletonManager extends SingletonManager<Serializable> {
         return singletonType;
     }
 
+    @Override
+    public <SingletonType extends Serializable> SingletonType makeSingleton(SingletonType singletonType) {
+        SingletonType singleton = super.makeSingleton(singletonType);
+        save(singleton);
+        return singleton;
+    }
+
     /**
      * Saves the specified singleton to the local application data directory under "singleton/"
      *
@@ -75,9 +83,20 @@ public class PersistentSingletonManager extends SingletonManager<Serializable> {
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(file);
                 objectOutputStream.writeObject(serializable);
                 objectOutputStream.close();
+                file.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Saves all of the data contained in the map.
+     */
+    public void saveAll() {
+        Set<Class> keys = mSingletonMap.keySet();
+        for (Class key : keys) {
+            save(mSingletonMap.get(key));
         }
     }
 
@@ -92,13 +111,24 @@ public class PersistentSingletonManager extends SingletonManager<Serializable> {
     }
 
     /**
-     * Deletes the specified singleton object from the data directory under "singleton/"
+     * Deletes the specified singleton object from the data directory under "singleton/".
+     * Does not remove the item from the map.
      *
      * @param serializable The object singleton we want to delete
      */
     public void delete(Serializable serializable) {
         if (serializable != null) {
             AppContext.getInstance().deleteFile("singleton/" + serializable.hashCode() + "");
+        }
+    }
+
+    /**
+     * Deletes all data from disk contained in this manager. Does not remove them from this contained map.
+     */
+    public void deleteAll() {
+        Set<Class> keys = mSingletonMap.keySet();
+        for (Class key : keys) {
+            delete(mSingletonMap.get(key));
         }
     }
 }

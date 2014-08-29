@@ -98,4 +98,14 @@ public class SingletonManager<DataClass> {
         return (SingletonType) mSingletonMap.remove(typeClass);
     }
 
+    /**
+     * Puts this {@link SingletonType} into the map. Warning, this will override any previous entry in the Map.
+     * @param singletonType The object put into the map
+     * @param <SingletonType> the type param of the singleton
+     */
+    @SuppressWarnings("unchecked")
+    public <SingletonType extends DataClass> SingletonType makeSingleton(SingletonType singletonType) {
+        return (SingletonType) mSingletonMap.put(singletonType.getClass(), singletonType);
+    }
+
 }
