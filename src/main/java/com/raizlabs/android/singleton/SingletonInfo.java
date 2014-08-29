@@ -43,13 +43,9 @@ class SingletonInfo<DataClass> {
     public SingletonInfo setPersists(boolean persists) {
         this.persists = persists;
         if(persists) {
-            if(Serializable.class.isAssignableFrom(mDataClass)) {
-                mInstance = (DataClass) SingletonManager.getInstance().load((SingletonInfo<? extends Serializable>) this);
-            } else {
-                throw new IllegalArgumentException("DataClass from SingletonInfo must implement java.io.Serializable");
-            }
+            getInstance();
         } else {
-            SingletonManager.getInstance().deleteSingleton(this);
+            SingletonManager.getInstance().removePersistence(this);
         }
         return this;
     }
@@ -67,12 +63,21 @@ class SingletonInfo<DataClass> {
      * we are not in the map of data.
      * @return
      */
+    @SuppressWarnings("unchecked")
     public DataClass getInstance() {
         if(mInstance == null) {
-            try {
-                mInstance = mDataClass.newInstance();
-            } catch (Throwable e) {
-                e.printStackTrace();
+            if(persists) {
+                if (Serializable.class.isAssignableFrom(mDataClass)) {
+                    mInstance = (DataClass) SingletonManager.getInstance().load((SingletonInfo<? extends Serializable>) this);
+                } else {
+                    throw new IllegalArgumentException("DataClass from SingletonInfo must implement java.io.Serializable");
+                }
+            } else {
+                try {
+                    mInstance = mDataClass.newInstance();
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
             }
         }
         return mInstance;
@@ -104,7 +109,7 @@ class SingletonInfo<DataClass> {
      */
     public DataClass delete() {
         DataClass instance = mInstance;
-        SingletonManager.getInstance().deleteSingleton(this);
+        SingletonManager.getInstance().removePersistence(this);
         return instance;
     }
 }

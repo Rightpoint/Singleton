@@ -46,6 +46,10 @@ class SingletonManager {
         this.mSingletonMap = new HashMap<Class, SingletonInfo>();
     }
 
+    private String getSingletonFileName(Class clazz) {
+        return "singleton/" + clazz.getName().hashCode();
+    }
+
     /**
      * Puts this {@link DataClass} into the map. Warning, this will override any previous entry in the Map.
      *
@@ -95,8 +99,8 @@ class SingletonManager {
             Object serializable = singletonInfo.getInstance();
             if (serializable != null) {
                 try {
-                    FileOutputStream file = AppContext.getInstance().openFileOutput("singleton/" +
-                                    serializable.getClass().getName().hashCode(),
+                    FileOutputStream file = AppContext.getInstance()
+                            .openFileOutput(getSingletonFileName(serializable.getClass()),
                             Context.MODE_PRIVATE);
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(file);
                     objectOutputStream.writeObject(serializable);
@@ -118,23 +122,25 @@ class SingletonManager {
     @SuppressWarnings("unchecked")
     public <DataClass> SingletonInfo<DataClass> destroySingleton(Class<DataClass> typeClass) {
         SingletonInfo<DataClass> singletonInfo = mSingletonMap.remove(typeClass);
-        deleteSingleton(singletonInfo);
+        removePersistence(singletonInfo);
         return singletonInfo;
     }
 
 
-    public <DataClass> void deleteSingleton(SingletonInfo<DataClass> singletonInfo) {
+    /**
+     * It will delete the singleton file on disk
+     * @param singletonInfo
+     * @param <DataClass>
+     */
+    public <DataClass> void removePersistence(SingletonInfo<DataClass> singletonInfo) {
         if (singletonInfo != null && singletonInfo.isPersists()) {
-            DataClass serializable = singletonInfo.getInstance();
-            if (serializable != null) {
-                AppContext.getInstance().deleteFile("singleton/" + serializable.hashCode() + "");
-            }
+            AppContext.getInstance().deleteFile(getSingletonFileName(singletonInfo.getDataClass()));
         }
     }
 
     @SuppressWarnings("unchecked")
     public <DataClass extends Serializable> DataClass load(SingletonInfo<DataClass> singletonInfo) {
-        String fName = "singleton/" +singletonInfo.getDataClass().getName().hashCode();
+        String fName = getSingletonFileName(singletonInfo.getDataClass());
         DataClass data = null;
         if(AppContext.getInstance().getFileStreamPath(fName).exists()) {
             try {
