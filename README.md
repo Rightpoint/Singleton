@@ -57,6 +57,6 @@ public void someMethod() {
 ```java
   
    // Saves the object to persistent storage
-   myObject.save();
+   mySingleton.save();
 
 ```
