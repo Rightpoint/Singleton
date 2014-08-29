@@ -1,8 +1,5 @@
 package com.raizlabs.android.singleton;
 
-import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-
 /**
  * Author: andrewgrosner
  * Contributors: { }
@@ -13,145 +10,76 @@ import java.lang.reflect.ParameterizedType;
  */
 public class Singleton<DataClass> {
 
-    /**
-     * Makes the specified object a Singleton
-     * @param instance
-     * @param persists
-     * @param <DataClass>
-     * @return
-     */
-    public static <DataClass> Singleton<DataClass> makeSingleton(DataClass instance, boolean persists) {
-        Singleton<DataClass> singleton = new Singleton<DataClass>(instance, persists);
-        if(persists) {
-            if(instance instanceof Serializable) {
-                PersistentSingletonManager.getInstance().makeSingleton((Serializable) instance);
-            } else {
-                throw new RuntimeException("Singleton must implement java.io.Serializable for it to persist");
-            }
-        } else {
-            SingletonManager.getInstance().makeSingleton(instance);
-        }
-        return singleton;
-    }
-
+    private SingletonInfo<DataClass> mSingletonInfo;
 
     /**
-     * The class we will use to retrieve an instance from the {@link com.raizlabs.android.singleton.SingletonManager}
-     */
-    private Class<DataClass> mDataClass;
-
-    /**
-     * The instance contained in the {@link com.raizlabs.android.singleton.SingletonManager}
-     */
-    private DataClass mInstance;
-
-    /**
-     * Boolean determines whether we've determined that this class should persist. Note that this class
-     * must implement {@link java.io.Serializable} for it work appropriately
-     */
-    private boolean persists = false;
-
-    /**
-     * Constructs an empty instance of the singleton. It does not retrieve an instance from the
-     * {@link com.raizlabs.android.singleton.SingletonManager} until you call {@link #retrieve()}
+     * Constructs an empty instance of the singleton. It does not create or retrieve the instance of the data
+     * until you call {@link #getInstance()}. It will by default not persist the object until you {@link #save()}
      * @param dataClass The class we will use to retrieve an instance from
      *                  the {@link com.raizlabs.android.singleton.SingletonManager}
      */
     public Singleton(Class<DataClass> dataClass) {
-        mDataClass = dataClass;
-    }
-
-
-    @SuppressWarnings("unchecked")
-    Singleton(DataClass instance, boolean persists) {
-        this.persists = persists;
-        mInstance = instance;
-        mDataClass = (Class<DataClass>) instance.getClass();
+        this(dataClass, false);
     }
 
     /**
-     * Returns the singleton
+     * Constructs an empty instance of the singleton. It does not create or retrieve the instance of the data
+     * until you call {@link #getInstance()}
+     * @param dataClass The class we will use to retrieve an instance from
+     *                  the {@link com.raizlabs.android.singleton.SingletonManager}
+     */
+    public Singleton(Class<DataClass> dataClass, boolean persists) {
+        mSingletonInfo = SingletonManager.getInstance().singleton(dataClass, persists);
+    }
+
+    /**
+     * Constructs an instance of the singleton with the specified object.
+     * It will by default not persist the object until you {@link #save()}
+     * @param instance The object that we will turn into a singleton.
+     */
+    public Singleton(DataClass instance) {
+        this(instance, false);
+    }
+
+    /**
+     * Constructs an instance of the singleton with the specified object and persistence.
+     * @param instance The object that we will turn into a singleton.
+     * @param persists Whether we want it on disk or not.
+     */
+    public Singleton(DataClass instance, boolean persists) {
+        mSingletonInfo = SingletonManager.getInstance().makeSingleton(instance, persists);
+    }
+
+    /**
+     * Creates (if necessary, using the default constructor) and returns the singleton.
      * @return
      */
-    public DataClass retrieve() {
-        if(mInstance == null) {
-            mInstance = instantiate();
-        }
-        return mInstance;
+    public DataClass getInstance() {
+        return mSingletonInfo.getInstance();
     }
 
     /**
-     * Returns the singleton and has it persist in disk storage
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public DataClass retrievePersist() {
-        if(mInstance == null) {
-            Class type = (Class) ((ParameterizedType)mDataClass.getGenericSuperclass()).getActualTypeArguments()[0];
-            if(!Serializable.class.isAssignableFrom(type)) {
-                throw new RuntimeException("Singleton must implement java.io.Serializable for it to persist");
-            }
-            mInstance = (DataClass) PersistentSingletonManager.getInstance().singleton((Class<Serializable>)mDataClass);
-
-        } else if(!persists) {
-            makeSingleton(mInstance, true);
-            // Remove existing object if its in the regular singleton manager
-            SingletonManager.remove(mDataClass);
-        }
-        persists = true;
-        return mInstance;
-    }
-
-    /**
-     * Saves the object into persistent storage, converts it into the {@link com.raizlabs.android.singleton.PersistentSingletonManager}
-     * if it does not already exist there.
+     * Saves the object into persistent storage.
      * @return The saved instance
      */
     public DataClass save() {
-        DataClass data = null;
-        if(mInstance != null && !persists) {
-            data = retrievePersist();
-        } else {
-            data = mInstance;
-            PersistentSingletonManager.getInstance().save((Serializable) mInstance);
-        }
-        return data;
+        mSingletonInfo.setPersists(true);
+        return mSingletonInfo.getInstance();
     }
 
     /**
      * Destroys the singleton from the {@link com.raizlabs.android.singleton.SingletonManager} and
-     * releases reference from this class. If this is persistent, it will delete it from the
-     * {@link com.raizlabs.android.singleton.PersistentSingletonManager}
+     * releases reference from this class. If this is persistent, it will delete it from internal storage.
      * @return The item that was removed.
      */
-    @SuppressWarnings("unchecked")
-    public DataClass remove() {
-        DataClass instance = null;
-        if(mInstance != null) {
-            if(!persists) {
-                SingletonManager.remove(mDataClass);
-            } else {
-                PersistentSingletonManager.getInstance().destroySingleton((Class<Serializable>)mDataClass);
-            }
-            instance = mInstance;
-            mInstance = null;
-        }
-        return instance;
+    public DataClass delete() {
+        return mSingletonInfo.delete();
     }
 
     /**
-     * Creates this singleton. If you wish to override the behavior or provide some different mechanism
-     * to creating it, make sure to add it the {@link com.raizlabs.android.singleton.SingletonManager} map.
-     * @return The newly created instance of this object.
+     * Releases the reference to the singleton in the {@link com.raizlabs.android.singleton.SingletonManager}
      */
-    @SuppressWarnings("unchecked")
-    protected DataClass instantiate() {
-        if(mInstance == null) {
-            mInstance = SingletonManager.retrieve(mDataClass);
-
-            // If persistent, we will remove from the persistent map
-            PersistentSingletonManager.getInstance().destroySingleton((Class<Serializable> )mDataClass);
-        }
-        return mInstance;
+    public void release() {
+        mSingletonInfo.release();
     }
 }
