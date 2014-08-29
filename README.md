@@ -40,14 +40,14 @@ public void someMethod() {
 ```java
 
   // Deletes from persistent storage
-  myObject.delete();
+  mySingleton.delete();
 
   // Removes the grasp on the contained reference and sets it to null. 
   // Good for freeing up persistent data
-  myObject.release();
+  mySingleton.release();
 
   // Deletes, releases, and removes itself from the SingletonManager
-  myObject.remove();
+  mySingleton.remove();
 
 
 ```
