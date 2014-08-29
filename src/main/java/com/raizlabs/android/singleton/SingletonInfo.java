@@ -30,8 +30,16 @@ class SingletonInfo<DataClass> {
         mDataClass = dataClass;
     }
 
+    @SuppressWarnings("unchecked")
     public SingletonInfo(DataClass data) {
         mInstance = data;
+        mDataClass = (Class<DataClass>) mInstance.getClass();
+    }
+
+    protected void checkSerializable() {
+        if(!Serializable.class.isAssignableFrom(mDataClass)) {
+            throw new IllegalArgumentException("DataClass from SingletonInfo must implement java.io.Serializable");
+        }
     }
 
     /**
@@ -50,6 +58,16 @@ class SingletonInfo<DataClass> {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
+    public void save() {
+        if(!persists) {
+            setPersists(true);
+        } else {
+            checkSerializable();
+            SingletonManager.getInstance().save((SingletonInfo<? extends Serializable>) this);
+        }
+    }
+
     public void setInstance(DataClass instance) {
         this.mInstance = instance;
     }
@@ -59,19 +77,15 @@ class SingletonInfo<DataClass> {
     }
 
     /**
-     * Creates the instance in this class if it currently has none. This should only be called when
-     * we are not in the map of data.
+     * Creates the instance in this class if it currently has none, or loads it from disk if its persistent.
      * @return
      */
     @SuppressWarnings("unchecked")
     public DataClass getInstance() {
         if(mInstance == null) {
             if(persists) {
-                if (Serializable.class.isAssignableFrom(mDataClass)) {
-                    mInstance = (DataClass) SingletonManager.getInstance().load((SingletonInfo<? extends Serializable>) this);
-                } else {
-                    throw new IllegalArgumentException("DataClass from SingletonInfo must implement java.io.Serializable");
-                }
+                checkSerializable();
+                mInstance = (DataClass) SingletonManager.getInstance().load((SingletonInfo<? extends Serializable>) this);
             } else {
                 try {
                     mInstance = mDataClass.newInstance();
