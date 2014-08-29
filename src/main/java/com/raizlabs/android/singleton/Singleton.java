@@ -87,14 +87,35 @@ public class Singleton<DataClass> {
     @SuppressWarnings("unchecked")
     public DataClass retrievePersist() {
         if(mInstance == null) {
-            persists = true;
             Class type = (Class) ((ParameterizedType)mDataClass.getGenericSuperclass()).getActualTypeArguments()[0];
             if(!Serializable.class.isAssignableFrom(type)) {
                 throw new RuntimeException("Singleton must implement java.io.Serializable for it to persist");
             }
             mInstance = (DataClass) PersistentSingletonManager.getInstance().singleton((Class<Serializable>)mDataClass);
+
+        } else if(!persists) {
+            makeSingleton(mInstance, true);
+            // Remove existing object if its in the regular singleton manager
+            SingletonManager.remove(mDataClass);
         }
+        persists = true;
         return mInstance;
+    }
+
+    /**
+     * Saves the object into persistent storage, converts it into the {@link com.raizlabs.android.singleton.PersistentSingletonManager}
+     * if it does not already exist there.
+     * @return The saved instance
+     */
+    public DataClass save() {
+        DataClass data = null;
+        if(mInstance != null && !persists) {
+            data = retrievePersist();
+        } else {
+            data = mInstance;
+            PersistentSingletonManager.getInstance().save((Serializable) mInstance);
+        }
+        return data;
     }
 
     /**
@@ -123,9 +144,13 @@ public class Singleton<DataClass> {
      * to creating it, make sure to add it the {@link com.raizlabs.android.singleton.SingletonManager} map.
      * @return The newly created instance of this object.
      */
+    @SuppressWarnings("unchecked")
     protected DataClass instantiate() {
         if(mInstance == null) {
             mInstance = SingletonManager.retrieve(mDataClass);
+
+            // If persistent, we will remove from the persistent map
+            PersistentSingletonManager.getInstance().destroySingleton((Class<Serializable> )mDataClass);
         }
         return mInstance;
     }
