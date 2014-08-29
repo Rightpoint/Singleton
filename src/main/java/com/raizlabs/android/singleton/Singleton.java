@@ -63,7 +63,7 @@ public class Singleton<DataClass> {
      * @return The saved instance
      */
     public DataClass save() {
-        mSingletonInfo.setPersists(true);
+        mSingletonInfo.save();
         return mSingletonInfo.getInstance();
     }
 
