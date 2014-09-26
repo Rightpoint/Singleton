@@ -80,7 +80,8 @@ class SingletonManager {
      */
     @SuppressWarnings("unchecked")
     public <DataClass> SingletonInfo<DataClass> singleton(String key, Class<DataClass> typeClass, boolean persists) {
-        SingletonInfo<DataClass> singleTon = (SingletonInfo<DataClass>) mSingletonMap.get(typeClass);
+        Map<String, SingletonInfo> classMap = mSingletonMap.get(typeClass);
+        SingletonInfo<DataClass> singleTon = (SingletonInfo<DataClass>) classMap.get(key);
         if (singleTon == null) {
             try {
                 singleTon = new SingletonInfo<DataClass>(typeClass).setPersists(persists).setTag(key);
