@@ -23,8 +23,12 @@ class SingletonInfo<DataClass> {
     /**
      * The class we will use to retrieve an instance from the {@link com.raizlabs.android.singleton.SingletonManager}
      */
-    private Class<DataClass> mDataClass;
+    Class<DataClass> mDataClass;
 
+    /**
+     * The tag we will use to retrieve this instance from the {@link com.raizlabs.android.singleton.SingletonManager}
+     */
+    String mTag;
 
     public SingletonInfo(Class<DataClass> dataClass) {
         mDataClass = dataClass;
@@ -47,14 +51,18 @@ class SingletonInfo<DataClass> {
      * @param persists
      * @return
      */
-    @SuppressWarnings("unchecked")
-    public SingletonInfo setPersists(boolean persists) {
+    public SingletonInfo<DataClass> setPersists(boolean persists) {
         this.persists = persists;
         if(persists) {
             getInstance();
         } else {
             SingletonManager.getInstance().removePersistence(this);
         }
+        return this;
+    }
+
+    public SingletonInfo<DataClass> setTag(String tag) {
+        mTag = tag;
         return this;
     }
 
@@ -87,18 +95,23 @@ class SingletonInfo<DataClass> {
                 checkSerializable();
                 mInstance = (DataClass) SingletonManager.getInstance().load((SingletonInfo<? extends Serializable>) this);
             } else {
-                try {
-                    mInstance = mDataClass.newInstance();
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
+                newInstance();
             }
         }
         return mInstance;
     }
 
-    public Class<DataClass> getDataClass() {
-        return mDataClass;
+    /**
+     * Returns a brand new instance of the {@link DataClass}
+     * @return
+     */
+    public DataClass newInstance() {
+        try {
+            mInstance = mDataClass.newInstance();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return mInstance;
     }
 
     /**

@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.raizlabs.android.core.AppContext;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -37,17 +38,17 @@ class SingletonManager {
         return singletonManager;
     }
 
-    protected Map<Class, SingletonInfo> mSingletonMap;
+    protected Map<Class, Map<String, SingletonInfo>> mSingletonMap;
 
     /**
      * Constructs and instantiates this singleton
      */
     public SingletonManager() {
-        this.mSingletonMap = new HashMap<Class, SingletonInfo>();
+        this.mSingletonMap = new HashMap<Class, Map<String, SingletonInfo>>();
     }
 
-    private String getSingletonFileName(Class clazz) {
-        return "singleton/" + clazz.getName().hashCode();
+    private String getSingletonFileName(String key, Class clazz) {
+        return "singleton" + File.pathSeparator + key + "_" + clazz.getName().replaceAll("\\.", "_");
     }
 
     /**
@@ -56,9 +57,14 @@ class SingletonManager {
      * @param singletonType The object put into the map
      */
     @SuppressWarnings("unchecked")
-    public <DataClass> SingletonInfo<DataClass> makeSingleton(DataClass singletonType, boolean persists) {
-        SingletonInfo<DataClass> singletonInfo = mSingletonMap.put(singletonType.getClass(),
-                new SingletonInfo<DataClass>(singletonType).setPersists(persists));
+    public <DataClass> SingletonInfo<DataClass> makeSingleton(String key, DataClass singletonType, boolean persists) {
+        SingletonInfo<DataClass> singletonInfo = new SingletonInfo<DataClass>(singletonType).setPersists(persists);
+        Map<String, SingletonInfo> map = mSingletonMap.get(singletonInfo.mDataClass);
+        if(map == null) {
+            map = new HashMap<String, SingletonInfo>();
+            mSingletonMap.put(singletonInfo.mDataClass, map);
+        }
+        map.put(key, singletonInfo);
         if (persists) {
             save((SingletonInfo<? extends Serializable>) singletonInfo);
         }
@@ -73,16 +79,21 @@ class SingletonManager {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <DataClass> SingletonInfo<DataClass> singleton(Class<DataClass> typeClass, boolean persists) {
+    public <DataClass> SingletonInfo<DataClass> singleton(String key, Class<DataClass> typeClass, boolean persists) {
         SingletonInfo<DataClass> singleTon = (SingletonInfo<DataClass>) mSingletonMap.get(typeClass);
         if (singleTon == null) {
             try {
-                singleTon = new SingletonInfo<DataClass>(typeClass).setPersists(persists);
+                singleTon = new SingletonInfo<DataClass>(typeClass).setPersists(persists).setTag(key);
             } catch (Exception e) {
                 e.printStackTrace();
             }
             if(singleTon != null) {
-                mSingletonMap.put(typeClass, singleTon);
+                Map<String, SingletonInfo> map = mSingletonMap.get(singleTon.mDataClass);
+                if(map == null) {
+                    map = new HashMap<String, SingletonInfo>();
+                    mSingletonMap.put(singleTon.mDataClass, map);
+                }
+                map.put(key, singleTon);
             }
         }
 
@@ -100,7 +111,7 @@ class SingletonManager {
             if (serializable != null) {
                 try {
                     FileOutputStream file = AppContext.getInstance()
-                            .openFileOutput(getSingletonFileName(serializable.getClass()),
+                            .openFileOutput(getSingletonFileName(singletonInfo.mTag, serializable.getClass()),
                             Context.MODE_PRIVATE);
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(file);
                     objectOutputStream.writeObject(serializable);
@@ -120,13 +131,13 @@ class SingletonManager {
      */
     public <DataClass> void removePersistence(SingletonInfo<DataClass> singletonInfo) {
         if (singletonInfo != null && singletonInfo.isPersists()) {
-            AppContext.getInstance().deleteFile(getSingletonFileName(singletonInfo.getDataClass()));
+            AppContext.getInstance().deleteFile(getSingletonFileName(singletonInfo.mTag, singletonInfo.mDataClass));
         }
     }
 
     @SuppressWarnings("unchecked")
     public <DataClass extends Serializable> DataClass load(SingletonInfo<DataClass> singletonInfo) {
-        String fName = getSingletonFileName(singletonInfo.getDataClass());
+        String fName = getSingletonFileName(singletonInfo.mTag, singletonInfo.mDataClass);
         DataClass data = null;
         if(AppContext.getInstance().getFileStreamPath(fName).exists()) {
             try {
@@ -140,7 +151,7 @@ class SingletonManager {
                 e.printStackTrace();
             }
         } else {
-            data = singletonInfo.getInstance();
+            data = singletonInfo.newInstance();
             save(singletonInfo);
         }
         return data;
