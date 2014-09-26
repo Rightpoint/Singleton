@@ -59,12 +59,7 @@ class SingletonManager {
     @SuppressWarnings("unchecked")
     public <DataClass> SingletonInfo<DataClass> makeSingleton(String key, DataClass singletonType, boolean persists) {
         SingletonInfo<DataClass> singletonInfo = new SingletonInfo<DataClass>(singletonType).setPersists(persists);
-        Map<String, SingletonInfo> map = mSingletonMap.get(singletonInfo.mDataClass);
-        if(map == null) {
-            map = new HashMap<String, SingletonInfo>();
-            mSingletonMap.put(singletonInfo.mDataClass, map);
-        }
-        map.put(key, singletonInfo);
+        getClassMap(singletonInfo.mDataClass).put(key, singletonInfo);
         if (persists) {
             save((SingletonInfo<? extends Serializable>) singletonInfo);
         }
@@ -80,8 +75,7 @@ class SingletonManager {
      */
     @SuppressWarnings("unchecked")
     public <DataClass> SingletonInfo<DataClass> singleton(String key, Class<DataClass> typeClass, boolean persists) {
-        Map<String, SingletonInfo> classMap = mSingletonMap.get(typeClass);
-        SingletonInfo<DataClass> singleTon = (SingletonInfo<DataClass>) classMap.get(key);
+        SingletonInfo<DataClass> singleTon = (SingletonInfo<DataClass>) getClassMap(typeClass).get(key);
         if (singleTon == null) {
             try {
                 singleTon = new SingletonInfo<DataClass>(typeClass).setPersists(persists).setTag(key);
@@ -89,16 +83,25 @@ class SingletonManager {
                 e.printStackTrace();
             }
             if(singleTon != null) {
-                Map<String, SingletonInfo> map = mSingletonMap.get(singleTon.mDataClass);
-                if(map == null) {
-                    map = new HashMap<String, SingletonInfo>();
-                    mSingletonMap.put(singleTon.mDataClass, map);
-                }
-                map.put(key, singleTon);
+                getClassMap(singleTon.mDataClass).put(key, singleTon);
             }
         }
 
         return singleTon;
+    }
+
+    /**
+     * Retrieves and creates (if needed) the map of keys to a {@link com.raizlabs.android.singleton.SingletonInfo} class.
+     * @param typeClass
+     * @return
+     */
+    Map<String, SingletonInfo> getClassMap(Class typeClass) {
+        Map<String, SingletonInfo> classMap = mSingletonMap.get(typeClass);
+        if(classMap == null) {
+            classMap = new HashMap<String, SingletonInfo>();
+            mSingletonMap.put(typeClass, classMap);
+        }
+        return classMap;
     }
 
     /**
