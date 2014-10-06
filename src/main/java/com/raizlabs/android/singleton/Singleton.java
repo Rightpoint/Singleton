@@ -1,5 +1,7 @@
 package com.raizlabs.android.singleton;
 
+import android.content.Context;
+
 /**
  * Author: andrewgrosner
  * Contributors: { }
@@ -9,6 +11,19 @@ package com.raizlabs.android.singleton;
  * and the {@link com.raizlabs.android.singleton.SingletonManager}, just call {@link #remove()}.
  */
 public class Singleton<DataClass> {
+
+    private static Context mContext;
+
+    public static Context getContext() {
+        if(mContext == null) {
+            throw new IllegalStateException("Context for Singleton must not be null");
+        }
+        return mContext;
+    }
+
+    public static void init(Context context) {
+        mContext = context;
+    }
 
     private SingletonInfo<DataClass> mSingletonInfo;
 

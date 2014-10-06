@@ -2,8 +2,6 @@ package com.raizlabs.android.singleton;
 
 import android.content.Context;
 
-import com.raizlabs.android.core.AppContext;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -114,7 +112,7 @@ class SingletonManager {
             Object serializable = singletonInfo.getInstance();
             if (serializable != null) {
                 try {
-                    FileOutputStream file = AppContext.getInstance()
+                    FileOutputStream file = Singleton.getContext()
                             .openFileOutput(getSingletonFileName(singletonInfo.mTag, serializable.getClass()),
                             Context.MODE_PRIVATE);
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(file);
@@ -135,7 +133,7 @@ class SingletonManager {
      */
     public <DataClass> void removePersistence(SingletonInfo<DataClass> singletonInfo) {
         if (singletonInfo != null && singletonInfo.isPersists()) {
-            AppContext.getInstance().deleteFile(getSingletonFileName(singletonInfo.mTag, singletonInfo.mDataClass));
+            Singleton.getContext().deleteFile(getSingletonFileName(singletonInfo.mTag, singletonInfo.mDataClass));
         }
     }
 
@@ -143,9 +141,9 @@ class SingletonManager {
     public <DataClass extends Serializable> DataClass load(SingletonInfo<DataClass> singletonInfo) {
         String fName = getSingletonFileName(singletonInfo.mTag, singletonInfo.mDataClass);
         DataClass data = null;
-        if(AppContext.getInstance().getFileStreamPath(fName).exists()) {
+        if(Singleton.getContext().getFileStreamPath(fName).exists()) {
             try {
-                FileInputStream file = AppContext.getInstance().openFileInput(fName);
+                FileInputStream file = Singleton.getContext().openFileInput(fName);
                 ObjectInputStream objectOutputStream = new ObjectInputStream(file);
                 data = (DataClass) objectOutputStream.readObject();
                 singletonInfo.setInstance(data);

@@ -12,8 +12,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.13.+'
-        classpath 'com.raizlabs.android-modules:RaizLibraryPlugin:1.0.0'
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:2.2.4"
+        classpath 'com.raizlabs.android-modules:RaizLibraryPlugin:1.0.9'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5"
     }
 }
 
@@ -21,15 +21,14 @@ apply plugin: 'com.android.library'
 apply plugin: 'RaizLibraryPlugin'
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 20
     buildToolsVersion "20.0.0"
 
     defaultConfig {
         applicationId "com.raizlabs.android.singleton"
         minSdkVersion 3
-        targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
+        versionName = version.replace("-SNAPSHOT", "")
+        versionCode = Integer.parseInt(versionName.replace(".", ""))
     }
     buildTypes {
         release {
@@ -37,8 +36,4 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-}
-
-dependencies {
-    raizCompile "Core"
 }
