@@ -60,7 +60,7 @@ public class Singleton<DataClass> {
      *                  the {@link com.raizlabs.android.singleton.SingletonManager}
      */
     public Singleton(String tag, Class<DataClass> dataClass, boolean persists) {
-        mSingletonInfo = SingletonManager.getInstance().singleton(dataClass.getSimpleName(), dataClass, persists);
+        mSingletonInfo = SingletonManager.getInstance().singleton(tag, dataClass, persists);
     }
 
     /**
@@ -124,6 +124,22 @@ public class Singleton<DataClass> {
      */
     public DataClass getInstance() {
         return mSingletonInfo.getInstance();
+    }
+
+    /**
+     * @return true if the singleton still has an instance of the object or false if it is not
+     * created yet.
+     */
+    public boolean hasInstance() {
+        return mSingletonInfo.hasInstance();
+    }
+
+    /**
+     * @return true if the singleton is saved on disk. Will always return false if this instance is not
+     * persistent.
+     */
+    public boolean isOnDisk() {
+        return mSingletonInfo.isOnDisk();
     }
 
     /**

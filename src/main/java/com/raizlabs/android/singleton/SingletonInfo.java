@@ -1,6 +1,10 @@
 package com.raizlabs.android.singleton;
 
+import android.text.TextUtils;
+
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.util.Map;
 
 /**
  * Author: andrewgrosner
@@ -107,7 +111,9 @@ class SingletonInfo<DataClass> {
      */
     public DataClass newInstance() {
         try {
-            mInstance = mDataClass.newInstance();
+            Constructor<DataClass> dataClassConstructor = mDataClass.getDeclaredConstructor();
+            dataClassConstructor.setAccessible(true);
+            mInstance = dataClassConstructor.newInstance();
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -123,12 +129,10 @@ class SingletonInfo<DataClass> {
     }
 
     /**
-     * Removes the object from the {@link com.raizlabs.android.singleton.SingletonManager},
-     * deletes it from persistent storage, and releases its reference.
+     * @return true if this singleton is saved on disk
      */
-    public void remove() {
-        delete();
-        SingletonManager.getInstance().mSingletonMap.remove(mDataClass);
+    public boolean isOnDisk() {
+        return SingletonManager.getInstance().hasPersistence(this);
     }
 
     /**
@@ -146,7 +150,7 @@ class SingletonInfo<DataClass> {
     public DataClass delete() {
         DataClass instance = mInstance;
         release();
-        SingletonManager.getInstance().removePersistence(this);
+        SingletonManager.getInstance().removeSingleton(this);
         return instance;
     }
 }

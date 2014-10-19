@@ -12,13 +12,15 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.13.+'
-        classpath 'com.raizlabs.android-modules:RaizLibraryPlugin:1.0.9'
+        classpath 'com.raizlabs.android-modules:libraryplugin:1.0.10'
+        classpath 'com.raizlabs.android-modules:artifactorypublisher:1.0.0'
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5"
     }
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'RaizLibraryPlugin'
+apply plugin: 'com.raizlabs.libraryplugin'
+apply plugin: 'com.raizlabs.artifactorypublisher'
 
 android {
     compileSdkVersion 20

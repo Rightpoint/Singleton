@@ -1,6 +1,7 @@
 package com.raizlabs.android.singleton;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,7 +46,7 @@ class SingletonManager {
         this.mSingletonMap = new HashMap<Class, Map<String, SingletonInfo>>();
     }
 
-    private String getSingletonFileName(String key, Class clazz) {
+    private static String getSingletonFileName(String key, Class clazz) {
         return "singleton" + File.pathSeparator + key + "_" + clazz.getName().replaceAll("\\.", "_");
     }
 
@@ -80,7 +81,7 @@ class SingletonManager {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if(singleTon != null) {
+            if (singleTon != null) {
                 getClassMap(singleTon.mDataClass).put(key, singleTon);
             }
         }
@@ -90,12 +91,13 @@ class SingletonManager {
 
     /**
      * Retrieves and creates (if needed) the map of keys to a {@link com.raizlabs.android.singleton.SingletonInfo} class.
+     *
      * @param typeClass
      * @return
      */
     Map<String, SingletonInfo> getClassMap(Class typeClass) {
         Map<String, SingletonInfo> classMap = mSingletonMap.get(typeClass);
-        if(classMap == null) {
+        if (classMap == null) {
             classMap = new HashMap<String, SingletonInfo>();
             mSingletonMap.put(typeClass, classMap);
         }
@@ -114,7 +116,7 @@ class SingletonManager {
                 try {
                     FileOutputStream file = Singleton.getContext()
                             .openFileOutput(getSingletonFileName(singletonInfo.mTag, serializable.getClass()),
-                            Context.MODE_PRIVATE);
+                                    Context.MODE_PRIVATE);
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(file);
                     objectOutputStream.writeObject(serializable);
                     objectOutputStream.close();
@@ -127,7 +129,24 @@ class SingletonManager {
     }
 
     /**
+     * Removes the singleton from the manager and deletes the file if it persists
+     * @param singletonInfo
+     */
+    public void removeSingleton(SingletonInfo singletonInfo) {
+        removePersistence(singletonInfo);
+        Map<String, SingletonInfo> map = getClassMap(singletonInfo.mDataClass);
+        if(map != null) {
+            String tag = singletonInfo.mTag;
+            if(TextUtils.isEmpty(tag)) {
+                tag = singletonInfo.mDataClass.getSimpleName();
+            }
+            map.remove(tag);
+        }
+    }
+
+    /**
      * It will delete the singleton file on disk
+     *
      * @param singletonInfo
      * @param <DataClass>
      */
@@ -141,7 +160,7 @@ class SingletonManager {
     public <DataClass extends Serializable> DataClass load(SingletonInfo<DataClass> singletonInfo) {
         String fName = getSingletonFileName(singletonInfo.mTag, singletonInfo.mDataClass);
         DataClass data = null;
-        if(Singleton.getContext().getFileStreamPath(fName).exists()) {
+        if (Singleton.getContext().getFileStreamPath(fName).exists()) {
             try {
                 FileInputStream file = Singleton.getContext().openFileInput(fName);
                 ObjectInputStream objectOutputStream = new ObjectInputStream(file);
@@ -157,5 +176,19 @@ class SingletonManager {
             save(singletonInfo);
         }
         return data;
+    }
+
+    /**
+     * Returns true if there is a file on disk that contains the singleton.
+     * @param singletonInfo
+     * @return
+     */
+    public boolean hasPersistence(SingletonInfo singletonInfo) {
+        boolean persists = false;
+        if (singletonInfo != null && singletonInfo.isPersists()) {
+            String fName = getSingletonFileName(singletonInfo.mTag, singletonInfo.mDataClass);
+            persists = Singleton.getContext().getFileStreamPath(fName).exists();
+        }
+        return persists;
     }
 }
