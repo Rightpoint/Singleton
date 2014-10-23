@@ -9,7 +9,7 @@ Add this line to your build.gradle (assuming you're using the RaizLibraryPlugin)
 
 ```groovy
 
-  raizCompile "Singleton"
+  dependency "Singleton"
 
 ```
 
