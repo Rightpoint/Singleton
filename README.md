@@ -5,11 +5,12 @@
 
 ## Getting Started
 
-Add this line to your build.gradle (assuming you're using the RaizLibraryPlugin): 
+Not currently in the maven-releases repo yet.
+Add this line to your build.gradle:
 
 ```groovy
 
-  dependency "Singleton"
+  compile project(":Libraries:Singleton")
 
 ```
 
