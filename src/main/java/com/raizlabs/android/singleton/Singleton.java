@@ -4,11 +4,10 @@ import android.content.Context;
 
 /**
  * Author: andrewgrosner
- * Contributors: { }
  * Description: This is a simple class that holds an instance of an object in a singleton. It does not require
  * static allocation and can be called from anywhere if you wish. Just call new Singleton(MyClass.class).
- * When you want to access the object call {@link #retrieve()} and when you want to release reference from both this instance
- * and the {@link com.raizlabs.android.singleton.SingletonManager}, just call {@link #remove()}.
+ * When you want to access the object call {@link #getInstance()} and when you want to release reference from both this instance
+ * and the {@link com.raizlabs.android.singleton.SingletonManager}, just call {@link #release()}.
  */
 public class Singleton<DataClass> {
 

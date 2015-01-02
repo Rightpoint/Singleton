@@ -1,50 +1,27 @@
 buildscript {
     repositories {
-        mavenCentral()
-        maven { url 'http://dl.bintray.com/jfrog/jfrog-jars' }
-        maven {
-            url "${artifactory_contextUrl}/android-dev"
-            credentials {
-                username = "${artifactory_user}"
-                password = "${artifactory_password}"
-            }
-        }
+        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.13.+'
-        classpath 'com.raizlabs.android-modules:libraryplugin:1.0.12'
-        classpath 'com.raizlabs.android-modules:artifactorypublisher:1.0.0'
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:2.2.5"
+        classpath 'com.android.tools.build:gradle:1.0.0'
     }
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.raizlabs.libraryplugin'
-apply plugin: 'com.raizlabs.artifactorypublisher'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.0.2"
+    buildToolsVersion "21.1.1"
 
     defaultConfig {
-        applicationId "com.raizlabs.android.singleton"
         minSdkVersion 3
-        versionName = version.replace("-SNAPSHOT", "")
-        versionCode = Integer.parseInt(versionName.replace(".", ""))
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 
-if(project.getTasks().findByPath("artifactoryPublish") != null) {
-    artifactoryPublish.dependsOn {
-        androidSourcesJar
-    }
-
-    task androidSourcesJar(type: Jar) {
-        classifier = 'sources'
-        from android.sourceSets.main.java.sourceFiles
-    }
-
-    artifacts {
-        archives androidSourcesJar
-    }
-}
+apply from: 'maven_push.gradle'
+apply from: 'android-artifacts.gradle'
