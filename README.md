@@ -1,3 +1,6 @@
+
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.1.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+
 # Singleton
 
 
@@ -5,12 +8,25 @@
 
 ## Getting Started
 
-Not currently in the maven-releases repo yet.
-Add this line to your build.gradle:
+Add the maven repo url to your build.gradle:
 
 ```groovy
 
-  compile project(":Libraries:Singleton")
+  repositories {
+        maven { url "https://raw.github.com/Raizlabs/maven-releases/master/releases" }
+  }
+
+```
+
+Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) and the 
+[AARLinkSources](https://github.com/xujiaao/AARLinkSources) plugin::
+
+```groovy
+
+  dependencies {
+    compile 'com.raizlabs.android:Singleton:1.0.0'
+    aarLinkSources 'com.raizlabs.android:Singleton:1.1.0:sources@jar'
+  }
 
 ```
 
