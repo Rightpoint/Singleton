@@ -169,6 +169,20 @@ public class Singleton<DataClass> {
     }
 
     /**
+     * @return The tag that this singleton uses
+     */
+    public String getTag() {
+        return mSingletonInfo.mTag;
+    }
+
+    /**
+     * @return True if this class persists
+     */
+    public boolean persists() {
+        return mSingletonInfo.isPersists();
+    }
+
+    /**
      * Aids in constructing a singleton
      */
     public static class Builder<DataClass> {

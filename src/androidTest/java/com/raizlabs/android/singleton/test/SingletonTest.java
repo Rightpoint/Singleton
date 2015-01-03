@@ -83,6 +83,13 @@ public class SingletonTest extends AndroidTestCase {
 
     }
 
+    public void testBuilder() {
+        Singleton.Builder<TestObject> testObjectBuilder = new Singleton.Builder<>();
+        Singleton<TestObject> testObjectSingleton = testObjectBuilder.tag("Test").type(TestObject.class).build();
+        assertEquals("Test", testObjectSingleton.getTag());
+        assertNotNull(testObjectSingleton.getInstance());
+    }
+
     private static class TestObject {
 
         private String name;

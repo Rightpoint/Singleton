@@ -1,10 +1,7 @@
 package com.raizlabs.android.singleton;
 
-import android.text.TextUtils;
-
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.Map;
 
 /**
  * Author: andrewgrosner
@@ -45,19 +42,20 @@ class SingletonInfo<DataClass> {
     }
 
     protected void checkSerializable() {
-        if(!Serializable.class.isAssignableFrom(mDataClass)) {
+        if (!Serializable.class.isAssignableFrom(mDataClass)) {
             throw new IllegalArgumentException("DataClass from SingletonInfo must implement java.io.Serializable");
         }
     }
 
     /**
      * If true, this will mark the object as persisting and load the object (if exists, otherwise will save).
+     *
      * @param persists
      * @return
      */
     public SingletonInfo<DataClass> setPersists(boolean persists) {
         this.persists = persists;
-        if(persists) {
+        if (persists) {
             getInstance();
         } else {
             SingletonManager.getInstance().removePersistence(this);
@@ -72,7 +70,7 @@ class SingletonInfo<DataClass> {
 
     @SuppressWarnings("unchecked")
     public void save() {
-        if(!persists) {
+        if (!persists) {
             setPersists(true);
         } else {
             checkSerializable();
@@ -90,12 +88,13 @@ class SingletonInfo<DataClass> {
 
     /**
      * Creates the instance in this class if it currently has none, or loads it from disk if its persistent.
+     *
      * @return
      */
     @SuppressWarnings("unchecked")
     public DataClass getInstance() {
-        if(mInstance == null) {
-            if(persists) {
+        if (mInstance == null) {
+            if (persists) {
                 checkSerializable();
                 mInstance = (DataClass) SingletonManager.getInstance().load((SingletonInfo<? extends Serializable>) this);
             } else {
@@ -107,6 +106,7 @@ class SingletonInfo<DataClass> {
 
     /**
      * Returns a brand new instance of the {@link DataClass}
+     *
      * @return
      */
     public DataClass newInstance() {
@@ -122,10 +122,11 @@ class SingletonInfo<DataClass> {
 
     /**
      * Returns whether this currently has the instance object we want
+     *
      * @return
      */
     public boolean hasInstance() {
-        return mInstance!=null;
+        return mInstance != null;
     }
 
     /**
@@ -145,6 +146,7 @@ class SingletonInfo<DataClass> {
     /**
      * Destroys the singleton from the {@link com.raizlabs.android.singleton.SingletonManager} and
      * releases reference from this class. If this is persistent, it will delete it from internal storage.
+     *
      * @return The item that was removed.
      */
     public DataClass delete() {
