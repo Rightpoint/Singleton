@@ -14,7 +14,7 @@ public class Singleton<DataClass> {
     private static Context mContext;
 
     public static Context getContext() {
-        if(mContext == null) {
+        if (mContext == null) {
             throw new IllegalStateException("Context for Singleton must not be null");
         }
         return mContext;
@@ -166,5 +166,100 @@ public class Singleton<DataClass> {
      */
     public void release() {
         mSingletonInfo.release();
+    }
+
+    /**
+     * Aids in constructing a singleton
+     */
+    public static class Builder<DataClass> {
+
+        /**
+         * The class to construct using the default constructor
+         */
+        private Class<DataClass> mDataClass;
+
+        /**
+         * A pre-created instance we will keep in memory and/or on disk
+         */
+        private DataClass mDataInstance;
+
+        /**
+         * The tag to assign to it if we wish to have multiple of the same class. Default will be the
+         * simpleName of the {@link DataClass}
+         */
+        private String mTag;
+
+        /**
+         * If true, it will be stored immediately to disk and on all future {@link #save()} calls
+         */
+        private boolean persists;
+
+        /**
+         * Sets a pre-created instance for this builder and if a tag has not already been set, it will
+         * set the tag to be the simple name of the class.
+         *
+         * @param instance The not-null instance to store
+         * @return This builder
+         */
+        public Builder<DataClass> instance(DataClass instance) {
+            mDataInstance = instance;
+            if (mTag == null || mTag.length() == 0) {
+                tag(mDataInstance.getClass().getSimpleName());
+            }
+            return this;
+        }
+
+        /**
+         * Sets the type to create for this singleton using the default constructor. If a tag has not already
+         * been set, it will use the simple name of the class.
+         *
+         * @param type The class of the singleton to construct
+         * @return This type
+         */
+        public Builder<DataClass> type(Class<DataClass> type) {
+            mDataClass = type;
+            if (mTag == null || mTag.length() == 0) {
+                tag(mDataClass.getSimpleName());
+            }
+            return this;
+        }
+
+        /**
+         * The tag to assign to this singleton. If not unique, it may overwrite another singleton.
+         *
+         * @param tag The unique tag for this class to use when held in the manager.
+         * @return This type
+         */
+        public Builder<DataClass> tag(String tag) {
+            mTag = tag;
+            return this;
+        }
+
+        /**
+         * Sets this singleton to persist. If true, it must be a serializable object otherwise an exception
+         * will be thrown.
+         *
+         * @param persists
+         * @return
+         */
+        public Builder<DataClass> persists(boolean persists) {
+            this.persists = persists;
+            return this;
+        }
+
+        /**
+         * Will build and create the {@link com.raizlabs.android.singleton.Singleton}
+         *
+         * @return A constructed {@link com.raizlabs.android.singleton.Singleton} from the specified data.
+         */
+        public Singleton<DataClass> build() {
+            Singleton<DataClass> singleton;
+            if (mDataInstance != null) {
+                singleton = new Singleton<>(mTag, mDataInstance, persists);
+            } else {
+                singleton = new Singleton<>(mTag, mDataClass, persists);
+            }
+            return singleton;
+        }
     }
 }

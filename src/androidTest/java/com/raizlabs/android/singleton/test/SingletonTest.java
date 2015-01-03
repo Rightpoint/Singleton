@@ -78,6 +78,7 @@ public class SingletonTest extends AndroidTestCase {
 
         assertNotSame(objectSingleton.getInstance(), otherObjectSingleton.getInstance());
 
+        objectSingleton.delete();
         otherObjectSingleton.delete();
 
     }
