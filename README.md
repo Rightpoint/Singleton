@@ -1,11 +1,19 @@
 
-[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.0.0-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
+[![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.0.1-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 [![Android-Libs](https://img.shields.io/badge/Android--Libs-Singleton-orange.svg?style=flat)](http://android-libs.com/lib/singleton)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Singleton-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1294)
+[![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-134)
 
 # Singleton
 
 A very, very compact library that enables you to create __on-demand__ singletons within your application and easily store them to disk. Utilizing a dead-simple API, this library makes creating singletons and persisting data much more fun!
+
+## Changlog
+
+### 1.0.1
+  1. Added the ```Singleton.Builder``` class
+  2. Added ```persists()``` to see if a ```Singleton``` is set to exist
+  3. Added ```getTag()``` to retrieve a ```Singleton``` tag
 
 ## Getting Started
 
@@ -25,8 +33,8 @@ Add the library to the project-level build.gradle, using the [apt plugin](https:
 ```groovy
 
   dependencies {
-    compile 'com.raizlabs.android:Singleton:1.0.0'
-    aarLinkSources 'com.raizlabs.android:Singleton:1.0.0:sources@jar'
+    compile 'com.raizlabs.android:Singleton:1.0.1'
+    aarLinkSources 'com.raizlabs.android:Singleton:1.0.1:sources@jar'
   }
 
 ```
@@ -93,4 +101,16 @@ Will automatically convert the ```Singleton``` to persistent as long as it's ```
    // Saves the object to persistent storage
    mySingleton.save();
 
+```
+
+#### Builder
+
+The ```Singleton.Builder``` class is an easier way to create ```Singleton```:
+
+```java
+      Singleton<TestObject> testObjectSingleton = new Singleton.Builder<>()
+        .tag("Test")
+        .type(TestObject.class)
+        .persists(true)
+        .build();
 ```
