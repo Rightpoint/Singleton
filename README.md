@@ -2,7 +2,7 @@
 [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.0.1-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 [![Android-Libs](https://img.shields.io/badge/Android--Libs-Singleton-orange.svg?style=flat)](http://android-libs.com/lib/singleton)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Singleton-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1294)
-[![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-134)
+[![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23134-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-134)
 
 # Singleton
 
