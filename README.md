@@ -27,7 +27,7 @@ Add the maven repo url to your build.gradle:
 
 ```
 
-Add the library to the project-level build.gradle, using the [apt plugin](https://bitbucket.org/hvisser/android-apt) and the 
+Add the library to the project-level build.gradle, using the
 [AARLinkSources](https://github.com/xujiaao/AARLinkSources) plugin::
 
 ```groovy
