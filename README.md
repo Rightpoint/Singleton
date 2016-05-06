@@ -1,3 +1,7 @@
+## Important Notice
+This repository is slated for deletion, perhaps as soon as June 1, 2016.  Please find other solutions.  
+There will be no future updates or support. 
+
 
 [![Raizlabs Repository](http://img.shields.io/badge/Raizlabs%20Repository-1.0.1-blue.svg?style=flat)](https://github.com/Raizlabs/maven-releases)
 [![Android-Libs](https://img.shields.io/badge/Android--Libs-Singleton-orange.svg?style=flat)](http://android-libs.com/lib/singleton)
